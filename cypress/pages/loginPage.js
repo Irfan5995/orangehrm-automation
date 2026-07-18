@@ -28,6 +28,14 @@ class LoginPage {
         return cy.get('h6');
     }
 
+    profileMenu() {
+        return cy.get('.oxd-userdropdown-tab');
+    }
+
+    logoutButton() {
+        return cy.contains('Logout');
+    }
+
     login(username, password) {
         if (username !== null)
             this.username().clear().type(username);

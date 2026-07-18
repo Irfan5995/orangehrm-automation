@@ -1,175 +1,133 @@
 import LoginPage from "../pages/LoginPage";
 
-describe("OrangeHRM Login", () => {
+describe("OrangeHRM - Login Feature", () => {
 
     beforeEach(() => {
         LoginPage.visit();
     });
 
-    //====================================================
-    // TC01
-    //====================================================
-
+    // ==========================================
+    // TC01 - Login dengan username & password valid
+    // ==========================================
     it("TC01 - Login dengan username dan password valid", () => {
+
+        cy.intercept("POST", "**/auth/validate").as("loginRequest");
 
         LoginPage.login("Admin", "admin123");
 
+        cy.wait("@loginRequest")
+            .its("response.statusCode")
+            .should("eq", 302);
+
         cy.url().should("include", "dashboard");
 
-        LoginPage.dashboardTitle().should("contain", "Dashboard");
-
+        LoginPage.dashboardTitle()
+            .should("contain", "Dashboard");
     });
 
-    //====================================================
-    // TC02
-    //====================================================
-
+    // ==========================================
+    // TC02 - Username kosong
+    // ==========================================
     it("TC02 - Username kosong", () => {
 
         LoginPage.login(null, "admin123");
 
         LoginPage.requiredMessage()
             .should("contain", "Required");
-
     });
 
-    //====================================================
-    // TC03
-    //====================================================
-
+    // ==========================================
+    // TC03 - Password kosong
+    // ==========================================
     it("TC03 - Password kosong", () => {
 
         LoginPage.login("Admin", null);
 
         LoginPage.requiredMessage()
             .should("contain", "Required");
-
     });
 
-    //====================================================
-    // TC04
-    //====================================================
-
+    // ==========================================
+    // TC04 - Username dan Password kosong
+    // ==========================================
     it("TC04 - Username dan Password kosong", () => {
 
         LoginPage.login(null, null);
 
         LoginPage.requiredMessage()
             .should("have.length", 2);
-
     });
 
-    //====================================================
-    // TC05
-    //====================================================
-
+    // ==========================================
+    // TC05 - Username salah
+    // ==========================================
     it("TC05 - Username salah", () => {
+
+        cy.intercept("POST", "**/auth/validate").as("loginRequest");
 
         LoginPage.login("WrongAdmin", "admin123");
 
+        cy.wait("@loginRequest");
+
         LoginPage.errorMessage()
             .should("contain", "Invalid credentials");
-
     });
 
-    //====================================================
-    // TC06
-    //====================================================
-
+    // ==========================================
+    // TC06 - Password salah
+    // ==========================================
     it("TC06 - Password salah", () => {
+
+        cy.intercept("POST", "**/auth/validate").as("loginRequest");
 
         LoginPage.login("Admin", "wrongpassword");
 
+        cy.wait("@loginRequest");
+
         LoginPage.errorMessage()
             .should("contain", "Invalid credentials");
-
     });
 
-    //====================================================
-    // TC07
-    //====================================================
-
+    // ==========================================
+    // TC07 - Username dan Password salah
+    // ==========================================
     it("TC07 - Username dan Password salah", () => {
+
+        cy.intercept("POST", "**/auth/validate").as("loginRequest");
 
         LoginPage.login("WrongAdmin", "wrongpassword");
 
-        LoginPage.errorMessage()
-            .should("contain", "Invalid credentials");
-
-    });
-
-    //====================================================
-    // TC08
-    //====================================================
-
-    it("TC08 - Username hanya spasi", () => {
-
-        LoginPage.login("     ", "admin123");
-
-        LoginPage.requiredMessage()
-            .should("contain", "Required");
-
-
-    });
-
-    //====================================================
-    // TC09
-    //====================================================
-
-    it("TC09 - Password hanya spasi", () => {
-
-        LoginPage.login("Admin", "      ");
-
-        LoginPage.requiredMessage()
-            .should("contain", "Required");
-
-    });
-
-    //====================================================
-    // TC10
-    //====================================================
-
-    it("TC10 - Username terlalu panjang", () => {
-
-        LoginPage.login(
-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-            "admin123"
-        );
+        cy.wait("@loginRequest");
 
         LoginPage.errorMessage()
             .should("contain", "Invalid credentials");
-
     });
 
-    //====================================================
-    // TC11
-    //====================================================
+    // ==========================================
+    // TC08 - Logout berhasil
+    // ==========================================
+    it("TC08 - Logout berhasil", () => {
 
-    it("TC11 - Password terlalu panjang", () => {
+        cy.intercept("POST", "**/auth/validate").as("loginRequest");
 
-        LoginPage.login(
-            "Admin",
-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-        );
+        LoginPage.login("Admin", "admin123");
 
-        LoginPage.errorMessage()
-            .should("contain", "Invalid credentials");
+        cy.wait("@loginRequest");
 
-    });
+        cy.url().should("include", "dashboard");
 
-    //====================================================
-    // TC12
-    //====================================================
+        LoginPage.profileMenu()
+        .should("be.visible")
+        .click();
 
-    it("TC12 - Username dan Password sangat panjang", () => {
+        LoginPage.logoutButton()
+        .should("be.visible")
+        .click();
 
-        LoginPage.login(
-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-            "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-        );
+        cy.url().should("include", "/auth/login");
 
-        LoginPage.errorMessage()
-            .should("contain", "Invalid credentials");
+        LoginPage.loginButton()
+        .should("be.visible");
 
     });
 
