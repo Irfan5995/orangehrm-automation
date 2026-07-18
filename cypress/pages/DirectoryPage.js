@@ -4,6 +4,10 @@ class DirectoryPage{
         return cy.get('input[placeholder="Type for hints..."]').first();
     }
 
+    selectFirstEmployee() {
+    return cy.get(".oxd-autocomplete-option").first();
+    }
+    
     jobTitle(){
         return cy.get(".oxd-select-text").eq(0);
     }

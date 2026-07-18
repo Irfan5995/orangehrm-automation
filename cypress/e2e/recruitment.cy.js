@@ -39,18 +39,26 @@ describe("OrangeHRM - Recruitment Feature", () => {
     
     it("TC02 - Search Candidate Name", () => {
 
-        cy.intercept("GET", "**/recruitment/**").as("recruitment");
+    cy.intercept(
+        "GET",
+        "**/api/v2/recruitment/candidates*"
+    ).as("candidateSearch");
 
-        RecruitmentPage.candidateName()
-            .type("Linda");
+    RecruitmentPage.candidateName()
+        .type("a");
 
-        RecruitmentPage.searchButton()
-            .click();
+    cy.wait("@candidateSearch");
 
-        cy.wait("@recruitment");
+    RecruitmentPage.candidateOption()
+        .should("have.length.greaterThan", 1)
+        .first()
+        .click();
 
-        RecruitmentPage.candidateTable()
-            .should("exist");
+    RecruitmentPage.searchButton()
+        .click();
+
+    RecruitmentPage.candidateTable()
+        .should("be.visible");
 
     });
 

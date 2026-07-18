@@ -4,6 +4,10 @@ class RecruitmentPage{
         return cy.get('input[placeholder="Type for hints..."]').first();
     }
 
+    candidateOption() {
+        return cy.get(".oxd-autocomplete-option");
+    }
+
     vacancy(){
         return cy.get(".oxd-select-text").eq(1);
     }

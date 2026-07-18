@@ -37,14 +37,21 @@ describe("OrangeHRM Directory",()=>{
 
         DashboardPage.directoryMenu().click();
 
-        DirectoryPage.employeeName()
-            .type("Linda");
+        cy.intercept("GET","**/api/v2/directory/employees*").as("employeeSearch");
 
-        DirectoryPage.searchButton()
+        DirectoryPage.employeeName().type("a");
+
+        cy.wait("@employeeSearch");
+
+        cy.get(".oxd-autocomplete-dropdown")
+            .should("be.visible");
+
+        cy.get(".oxd-autocomplete-option")
+            .should("have.length.greaterThan", 1)
+            .first()
             .click();
 
-        DirectoryPage.resultCard()
-            .should("exist");
+        DirectoryPage.searchButton().click();
 
     });
 
